@@ -7,6 +7,5 @@
  */
 int main(void)
 {
-	printf("This is a test.\n");
-	return (0);
+    return (0);
 }
