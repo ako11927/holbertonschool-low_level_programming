@@ -745,5 +745,6 @@ extern int __overflow (FILE *, int);
 # 8 "main.c"
 int main(void)
 {
+ printf("This is a test.\n");
  return (0);
 }
