@@ -1,1 +1,2 @@
- i wish to be done from the first try
+# functions_nested_loops
+Task 0: program prints "_putchar" followed by a newline using _putchar only.

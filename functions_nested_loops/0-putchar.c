@@ -1,19 +1,17 @@
 #include "main.h"
 
 /**
- * main - prints "_putchar" and a newline
- * Return: 0
+ * main - Entry point
+ *
+ * Return: Always 0 (Success)
  */
 int main(void)
 {
-	const char *s = "_putchar";
-	int i = 0;
+	char s[] = "_putchar\n";
+	int i;
 
-	while (s[i])
-	{
+	for (i = 0; s[i] != '\0'; i++)
 		_putchar(s[i]);
-		i++;
-	}
-	_putchar('\n');
+
 	return (0);
 }
