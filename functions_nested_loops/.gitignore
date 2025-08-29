@@ -1,3 +1,14 @@
+# local test mains
 *-main.c
-*-main.c
-*-main.c
+
+# object files / generic build outputs
+*.o
+*.out
+a.out
+
+# binaries produced in this folder:
+# ignore any file starting with a digit (e.g., 0-putchar, 8-24, 11-98)
+# but keep your source/header files
+[0-9]*
+!*.c
+!*.h
