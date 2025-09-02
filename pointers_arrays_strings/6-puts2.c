@@ -1,8 +1,10 @@
 #include "main.h"
 
 /**
- * puts2 - print every other char of a string, starting with first
- * @str: string
+ * puts2 - Print every other character of a string, starting with the first.
+ * @str: string to print from
+ *
+ * Return: void
  */
 void puts2(char *str)
 {

@@ -1,10 +1,11 @@
 #include "main.h"
 
 /**
- * _strcpy - copy string src (including '\0') to dest
+ * _strcpy - Copy the string pointed to by src to dest (including '\0').
  * @dest: destination buffer
  * @src: source string
- * Return: dest
+ *
+ * Return: pointer to dest
  */
 char *_strcpy(char *dest, char *src)
 {
@@ -12,8 +13,8 @@ char *_strcpy(char *dest, char *src)
 
 	do {
 		dest[i] = src[i];
-	} while (src[i++] != '\0');
+		i++;
+	} while (src[i - 1] != '\0');
 
 	return (dest);
 }
-

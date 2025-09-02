@@ -1,9 +1,10 @@
 #include "main.h"
 
 /**
- * _strlen - compute length of a string
- * @s: string
- * Return: number of chars before '\0'
+ * _strlen - Return the length of a string.
+ * @s: string to measure
+ *
+ * Return: number of characters before the terminating null byte
  */
 int _strlen(char *s)
 {
