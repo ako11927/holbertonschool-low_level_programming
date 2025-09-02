@@ -2,30 +2,48 @@
 
 /**
  * _atoi - converts a string to an integer
- * @s: the string to be converted
+ * @s: the string to convert
  *
- * Return: the integer value of the string, or 0 if no numbers found
+ * Description:
+ * Build the value as a NEGATIVE number to avoid overflow on INT_MIN.
+ * If the final sign is positive, negate at the end (unless result is INT_MIN,
+ * which would overflow if negated; in that case, just return INT_MIN).
+ *
+ * Return: converted int, or 0 if no digits found
  */
 int _atoi(char *s)
 {
 	int i = 0;
-	int sign = 1;
-	int result = 0;
+	int neg = 0;         /* count '-' signs */
+	int found = 0;       /* saw at least one digit */
+	int result = 0;      /* keep as negative during accumulation */
 
-	/* skip non-digit characters and count signs */
+	/* skip non-digits, track signs */
 	while (s[i] && (s[i] < '0' || s[i] > '9'))
 	{
 		if (s[i] == '-')
-			sign *= -1;
+			neg++;
 		i++;
 	}
 
-	/* process digits */
+	/* accumulate as negative: result = result*10 - digit */
 	while (s[i] >= '0' && s[i] <= '9')
 	{
-		result = result * 10 + (s[i] - '0');
+		found = 1;
+		result = result * 10 - (s[i] - '0');
 		i++;
 	}
 
-	return (result * sign);
+	if (!found)
+		return (0);
+
+	/* if odd number of '-', number stays negative: return result */
+	if (neg % 2 == 1)
+		return (result);
+
+	/* positive sign: safely negate unless result is INT_MIN */
+	if (result == (-2147483647 - 1))
+		return (-2147483647 - 1);
+
+	return (-result);
 }
