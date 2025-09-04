@@ -2,17 +2,11 @@
 
 /**
  * leet - Encodes a string into 1337.
- * @s: The string to encode.
+ * @s: The string to encode
  *
- * Description:
- * a/A -> 4, e/E -> 3, o/O -> 0, t/T -> 7, l/L -> 1
- * Constraints satisfied:
- * - Only one if in the code
- * - Only two loops
- * - No switch, no ternary
- *
- * Return: Pointer to @s.
+ * Return: Pointer to s
  */
+
 char *leet(char *s)
 {
 	int i, j;
