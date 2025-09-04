@@ -1,0 +1,5 @@
+# Ignore all compiled test executables
+tests/*
+# Ignore object files and binaries
+*.o
+a.out
