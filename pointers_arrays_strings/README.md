@@ -1,21 +1,19 @@
-# Pointers, Arrays and Strings
+# pointers_arrays_strings
 
-Holberton School low-level programming project.
+Solutions for string and array manipulation tasks:
 
-## Learning Objectives
-- Pointers: what they are and how to use them
-- Arrays: declaration, indexing, iteration
-- Differences between pointers and arrays
-- Strings: null-terminated char arrays, traversal and manipulation
-- Scope of variables
+- `0-strcat.c` — `_strcat`
+- `1-strncat.c` — `_strncat`
+- `2-strncpy.c` — `_strncpy`
+- `3-strcmp.c` — `_strcmp`
+- `4-rev_array.c` — `reverse_array`
+- `5-string_toupper.c` — `string_toupper`
+- `6-cap_string.c` — `cap_string`
+- `7-leet.c` — `leet`
 
 ## Requirements
-- Ubuntu 20.04, `gcc` with flags: `-Wall -Werror -Wextra -pedantic -std=gnu89`
-- Betty style
-- No globals; ≤ 5 functions per file
-- No standard library (except `printf` in task 8); use `_putchar` where needed
 
-## Files
-`0-reset_to_98.c`, `1-swap.c`, `2-strlen.c`, `3-puts.c`, `4-print_rev.c`,  
-`5-rev_string.c`, `6-puts2.c`, `7-puts_half.c`, `8-print_array.c`,  
-`9-strcpy.c`, `100-atoi.c`, `main.h`
+- Ubuntu 20.04, `gcc` with `-Wall -Werror -Wextra -pedantic -std=gnu89`
+- Betty style
+- No standard library calls in implementations
+- Prototypes in `main.h`
