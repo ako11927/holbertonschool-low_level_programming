@@ -1,0 +1,9 @@
+# build artifacts
+*.o
+a
+b
+c
+d
+
+# local test mains (not needed by checker)
+*-main.c
