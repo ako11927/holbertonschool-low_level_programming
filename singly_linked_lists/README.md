@@ -17,3 +17,15 @@ You will learn how to:
 - All files compiled on **Ubuntu 20.04 LTS** using:
   ```bash
   gcc -Wall -Werror -Wextra -pedantic -std=gnu89
+---
+
+## Task 6: The Hare and the Tortoise 🐢
+
+**File:** `100-first.c`
+
+### Description:
+This file contains a function that prints a specific message *before the main function executes*, using GCC’s `__attribute__((constructor))`.
+
+### Function Used:
+```c
+void __attribute__ ((constructor)) first(void);
