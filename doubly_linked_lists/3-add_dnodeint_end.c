@@ -3,35 +3,35 @@
 
 /**
  * add_dnodeint_end - adds a new node at the end of a dlistint_t list
- * @head: pointer to the head pointer of the list
- * @n: integer value to store in the new node
+ * @head: address of the pointer to the head
+ * @n: value to store in the new node
  *
- * Return: address of the new element, or NULL if it failed
+ * Return: address of the new element, or NULL on failure
  */
 dlistint_t *add_dnodeint_end(dlistint_t **head, const int n)
 {
-    dlistint_t *new_node, *temp;
+	dlistint_t *new, *tail;
 
-    new_node = malloc(sizeof(dlistint_t));
-    if (new_node == NULL)
-        return (NULL);
+	new = malloc(sizeof(dlistint_t));
+	if (new == NULL)
+		return (NULL);
 
-    new_node->n = n;
-    new_node->next = NULL;
+	new->n = n;
+	new->next = NULL;
 
-    if (*head == NULL)
-    {
-        new_node->prev = NULL;
-        *head = new_node;
-        return (new_node);
-    }
+	if (*head == NULL)
+	{
+		new->prev = NULL;
+		*head = new;
+		return (new);
+	}
 
-    temp = *head;
-    while (temp->next)
-        temp = temp->next;
+	tail = *head;
+	while (tail->next != NULL)
+		tail = tail->next;
 
-    temp->next = new_node;
-    new_node->prev = temp;
+	tail->next = new;
+	new->prev = tail;
 
-    return (new_node);
+	return (new);
 }
