@@ -1,0 +1,11 @@
+# build artifacts
+*.o
+a.out
+test
+keygen5
+crackme5
+
+# editor cruft
+*~
+*.swp
+.DS_Store
