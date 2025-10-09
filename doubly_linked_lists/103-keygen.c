@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* Alphabet embedded in crackme5 */
-static const char ALPH[] =
+/* Exactly 64 chars (+1 for '\0'); must match crackme5 */
+static const char ALPH[65] =
 "A-CHRDw87lNS0E9B2TibgpnMVys5XzvtOGJcYLU+4mjW6fxqZ";
 
 int main(int ac, char **av)
@@ -17,6 +17,10 @@ int main(int ac, char **av)
 		return (1);
 	}
 
+	/* sanity: refuse to run with a bad alphabet */
+	if ((int)(sizeof(ALPH) - 1) != 64)
+		return (1);
+
 	u = av[1];
 	len = (int)strlen(u);
 
@@ -28,7 +32,7 @@ int main(int ac, char **av)
 		sum += (int)u[i];
 	key[1] = ALPH[(sum ^ 79) & 63];
 
-	/* 3 */
+	/* 3 (signed overflow on purpose) */
 	for (i = 0; i < len; i++)
 		prod *= (int)u[i];
 	key[2] = ALPH[(prod ^ 85) & 63];
@@ -45,8 +49,7 @@ int main(int ac, char **av)
 	for (i = 0; i < len; i++)
 	{
 		int c = (int)u[i];
-
-		sq += (c * c);
+		sq += c * c;
 	}
 	key[4] = ALPH[(sq ^ 239) & 63];
 
