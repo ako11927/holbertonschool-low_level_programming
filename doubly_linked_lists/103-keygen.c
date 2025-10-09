@@ -10,11 +10,11 @@
  */
 int main(int ac, char **av)
 {
-	char key[7];
-	const char *u;
-	int len, i, sum, prod, maxc, sumsqr, r;
-	const char *alph =
-		"A-CHRDw87lNS0E9B2TibgpnMVys5XzvtOGJcYLU+4mjW6fxqZ";
+	char alph[65] = {0};
+	const char *fallback =
+	"A-CHRDw87lNS0E9B2TibgpnMVys5XzvtOGJcYLU+4mjW6fxqZ";
+	const char *marker = "A-CHRDw87lNS0E9B2Tibgpn";
+	FILE *fp; long sz = 0; size_t rd = 0, i; char *buf = NULL;
 
 	if (ac != 2)
 	{
@@ -22,48 +22,73 @@ int main(int ac, char **av)
 		return (1);
 	}
 
-	u = av[1];
-	len = (int)strlen(u);
-
-	/* 0 */
-	key[0] = alph[(len ^ 59) & 63];
-
-	/* 1 */
-	sum = 0;
-	for (i = 0; i < len; i++)
-		sum += (int)u[i];
-	key[1] = alph[(sum ^ 79) & 63];
-
-	/* 2 (signed overflow intentional) */
-	prod = 1;
-	for (i = 0; i < len; i++)
-		prod *= (int)u[i];
-	key[2] = alph[(prod ^ 85) & 63];
-
-	/* 3 */
-	maxc = 0;
-	for (i = 0; i < len; i++)
-		if ((int)u[i] > maxc)
-			maxc = (int)u[i];
-	srand(maxc ^ 14);
-	key[3] = alph[rand() & 63];
-
-	/* 4 */
-	sumsqr = 0;
-	for (i = 0; i < len; i++)
+	/* --- try to load the actual alphabet from the compiled crackme --- */
+	fp = fopen("./crackme5", "rb");
+	if (!fp)
+		fp = fopen("crackme5", "rb");
+	if (fp && !fseek(fp, 0L, SEEK_END))
 	{
-		int c = (int)u[i];
-
-		sumsqr += c * c;
+		sz = ftell(fp);
+		if (sz > 0 && sz < 20000000)
+		{
+			rewind(fp);
+			buf = malloc((size_t)sz);
+			if (buf)
+				rd = fread(buf, 1, (size_t)sz, fp);
+		}
+		fclose(fp);
 	}
-	key[4] = alph[(sumsqr ^ 239) & 63];
+	if (buf && rd >= 64)
+	{
+		for (i = 0; i + 64 <= rd; i++)
+		{
+			if (memcmp(buf + i, marker, 24) == 0)
+			{
+				memcpy(alph, buf + i, 64);
+				alph[64] = '\0';
+				break;
+			}
+		}
+	}
+	free(buf);
+	if (!alph[0])
+		strcpy(alph, fallback);
 
-	/* 5 */
-	for (i = 0, r = 0; i < (int)u[0]; i++)
-		r = rand();
-	key[5] = alph[(r ^ 229) & 63];
+	/* --- compute key (signed int arithmetic; overflows intentional) --- */
+	{
+		const char *u = av[1];
+		int len = (int)strlen(u), i2, sum = 0, prod = 1, maxc = 0;
+		int sumsqr = 0, r = 0; char key[7];
 
-	key[6] = '\0';
-	printf("%s", key);
+		key[0] = alph[(len ^ 59) & 63];
+
+		for (i2 = 0; i2 < len; i2++)
+			sum += (int)u[i2];
+		key[1] = alph[(sum ^ 79) & 63];
+
+		for (i2 = 0; i2 < len; i2++)
+			prod *= (int)u[i2];
+		key[2] = alph[(prod ^ 85) & 63];
+
+		for (i2 = 0; i2 < len; i2++)
+			if ((int)u[i2] > maxc)
+				maxc = (int)u[i2];
+		srand(maxc ^ 14);
+		key[3] = alph[rand() & 63];
+
+		for (i2 = 0; i2 < len; i2++)
+		{
+			int c = (int)u[i2];
+			sumsqr += c * c;
+		}
+		key[4] = alph[(sumsqr ^ 239) & 63];
+
+		for (i2 = 0, r = 0; i2 < (int)u[0]; i2++)
+			r = rand();
+		key[5] = alph[(r ^ 229) & 63];
+
+		key[6] = '\0';
+		printf("%s", key);
+	}
 	return (0);
 }
