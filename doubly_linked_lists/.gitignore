@@ -2,3 +2,5 @@
 *.o
 test
 run_all.sh
+doubly_linked_lists/keygen5
+*.o
