@@ -5,10 +5,8 @@
 #define BUF_SIZE 1024
 
 /**
- * close_checked - closes a file descriptor, exits on failure
+ * close_checked - closes a file descriptor or exits with code 100 on failure
  * @fd: file descriptor
- *
- * If close fails, prints the required message and exits with code 100.
  */
 static void close_checked(int fd)
 {
@@ -20,11 +18,11 @@ static void close_checked(int fd)
 }
 
 /**
- * write_all - writes exactly @n bytes, exits 99 on failure
- * @fd: destination file descriptor
- * @buf: buffer to write
- * @n: number of bytes to write
- * @name: destination filename, for error message
+ * write_all - write exactly n bytes or exit with 99 on failure
+ * @fd: destination fd
+ * @buf: data buffer
+ * @n: bytes to write
+ * @name: destination filename (for error message)
  */
 static void write_all(int fd, const char *buf, ssize_t n, const char *name)
 {
@@ -43,59 +41,53 @@ static void write_all(int fd, const char *buf, ssize_t n, const char *name)
 }
 
 /**
- * main - copies the content of a file to another
- * @argc: argument count
- * @argv: argument vector
+ * copy_files - copy from @src to @dst using 1,024-byte chunks
+ * @src: source path
+ * @dst: destination path
  *
- * Return: 0 on success, exits 97–100 on failure as specified
+ * Exits with:
+ * 98 on read error (src), 99 on write/create error (dst), 100 on close error.
+ * Creates dst with perms 0664 and truncates if it exists.
+ * NOTE: Performs an initial read BEFORE opening dst so read errors take priority.
  */
-int main(int argc, char **argv)
+static void copy_files(const char *src, const char *dst)
 {
 	int fdf, fdt;
 	char buf[BUF_SIZE];
 	ssize_t r;
 
-	if (argc != 3)
-	{
-		dprintf(STDERR_FILENO, "Usage: cp file_from file_to\n");
-		exit(97);
-	}
-
-	/* Open source */
-	fdf = open(argv[1], O_RDONLY);
+	fdf = open(src, O_RDONLY);
 	if (fdf == -1)
 	{
-		dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", argv[1]);
+		dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", src);
 		exit(98);
 	}
 
-	/* First read BEFORE opening destination so read errors take precedence */
+	/* Initial read first: ensures forced read() failures map to exit 98 */
 	r = read(fdf, buf, BUF_SIZE);
 	if (r == -1)
 	{
-		dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", argv[1]);
+		dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", src);
 		close_checked(fdf);
 		exit(98);
 	}
 
-	/* Open destination after confirming we can read */
-	fdt = open(argv[2], O_CREAT | O_WRONLY | O_TRUNC, 0664);
+	fdt = open(dst, O_CREAT | O_WRONLY | O_TRUNC, 0664);
 	if (fdt == -1)
 	{
-		dprintf(STDERR_FILENO, "Error: Can't write to %s\n", argv[2]);
+		dprintf(STDERR_FILENO, "Error: Can't write to %s\n", dst);
 		close_checked(fdf);
 		exit(99);
 	}
 
-	/* Write first chunk, then continue */
 	while (r > 0)
 	{
-		write_all(fdt, buf, r, argv[2]);
+		write_all(fdt, buf, r, dst);
 
 		r = read(fdf, buf, BUF_SIZE);
 		if (r == -1)
 		{
-			dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", argv[1]);
+			dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", src);
 			close_checked(fdf);
 			close_checked(fdt);
 			exit(98);
@@ -104,5 +96,22 @@ int main(int argc, char **argv)
 
 	close_checked(fdf);
 	close_checked(fdt);
+}
+
+/**
+ * main - entry point: cp file_from file_to
+ * @argc: argument count
+ * @argv: argument vector
+ *
+ * Return: 0 on success (exits on errors with 97–100 per spec)
+ */
+int main(int argc, char **argv)
+{
+	if (argc != 3)
+	{
+		dprintf(STDERR_FILENO, "Usage: cp file_from file_to\n");
+		exit(97);
+	}
+	copy_files(argv[1], argv[2]);
 	return (0);
 }
