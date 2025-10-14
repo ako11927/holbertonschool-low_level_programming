@@ -5,11 +5,10 @@
 #define BUF_SIZE 1024
 
 /**
- * close_checked - closes a file descriptor, exiting on failure.
- * @fd: file descriptor to close
+ * close_checked - closes a file descriptor, exits on failure
+ * @fd: file descriptor
  *
- * Exits with code 100 and prints the required error message on stderr
- * if close(2) fails.
+ * If close fails, prints the required message and exits with code 100.
  */
 static void close_checked(int fd)
 {
@@ -21,11 +20,11 @@ static void close_checked(int fd)
 }
 
 /**
- * write_all - writes exactly n bytes or exits with code 99 on failure.
+ * write_all - writes exactly @n bytes, exits 99 on failure
  * @fd: destination file descriptor
- * @buf: buffer to write from
+ * @buf: buffer to write
  * @n: number of bytes to write
- * @name: destination filename for error message
+ * @name: destination filename, for error message
  */
 static void write_all(int fd, const char *buf, ssize_t n, const char *name)
 {
@@ -44,11 +43,11 @@ static void write_all(int fd, const char *buf, ssize_t n, const char *name)
 }
 
 /**
- * main - copies the content of one file to another using system calls only.
+ * main - copies the content of a file to another
  * @argc: argument count
- * @argv: argument vector (file_from, file_to)
+ * @argv: argument vector
  *
- * Return: 0 on success; exits with codes 97, 98, 99, or 100 on failure.
+ * Return: 0 on success, exits 97–100 on failure as specified
  */
 int main(int argc, char **argv)
 {
@@ -79,7 +78,7 @@ int main(int argc, char **argv)
 		exit(98);
 	}
 
-	/* Open destination only after confirming we can read */
+	/* Open destination after confirming we can read */
 	fdt = open(argv[2], O_CREAT | O_WRONLY | O_TRUNC, 0664);
 	if (fdt == -1)
 	{
@@ -88,7 +87,7 @@ int main(int argc, char **argv)
 		exit(99);
 	}
 
-	/* Write the first chunk already read, then continue the loop */
+	/* Write first chunk, then continue */
 	while (r > 0)
 	{
 		write_all(fdt, buf, r, argv[2]);
