@@ -41,11 +41,34 @@ static void write_all(int fd, const char *buf, ssize_t n, const char *name)
 }
 
 /**
+ * read_chunk - read up to BUF_SIZE; exit 98 on failure
+ * @src: source file name (for message)
+ * @fdf: source fd
+ * @fdt: dest fd, or -1 if not opened yet
+ * @buf: buffer to fill
+ * Return: number of bytes read, or 0 on EOF
+ */
+static ssize_t read_chunk(const char *src, int fdf, int fdt, char *buf)
+{
+	ssize_t r = read(fdf, buf, BUF_SIZE);
+
+	if (r == -1)
+	{
+		dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", src);
+		close_checked(fdf);
+		if (fdt != -1)
+			close_checked(fdt);
+		exit(98);
+	}
+	return (r);
+}
+
+/**
  * copy_files - copy src to dst using 1,024-byte chunks
  * @src: source path
  * @dst: destination path
  *
- * Note: does an initial read before opening dst so read errors map to 98.
+ * Note: does an initial read before opening dst so read errors exit with 98.
  */
 static void copy_files(const char *src, const char *dst)
 {
@@ -61,13 +84,7 @@ static void copy_files(const char *src, const char *dst)
 	}
 
 	/* initial read BEFORE opening dst so read error -> exit 98 */
-	r = read(fdf, buf, BUF_SIZE);
-	if (r == -1)
-	{
-		dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", src);
-		close_checked(fdf);
-		exit(98);
-	}
+	r = read_chunk(src, fdf, -1, buf);
 
 	fdt = open(dst, O_CREAT | O_WRONLY | O_TRUNC, 0664);
 	if (fdt == -1)
@@ -80,16 +97,7 @@ static void copy_files(const char *src, const char *dst)
 	while (r > 0)
 	{
 		write_all(fdt, buf, r, dst);
-
-		r = read(fdf, buf, BUF_SIZE);
-		if (r == -1)
-		{
-			dprintf(STDERR_FILENO, "Error: Can't read from file %s\n",
-				src);
-			close_checked(fdf);
-			close_checked(fdt);
-			exit(98);
-		}
+		r = read_chunk(src, fdf, fdt, buf);
 	}
 
 	close_checked(fdf);
@@ -100,8 +108,7 @@ static void copy_files(const char *src, const char *dst)
  * main - cp file_from file_to
  * @argc: argument count
  * @argv: argument vector
- *
- * Return: 0 on success (errors exit with 97-100 as specified)
+ * Return: 0 on success (errors exit with 97-100)
  */
 int main(int argc, char **argv)
 {
@@ -110,7 +117,6 @@ int main(int argc, char **argv)
 		dprintf(STDERR_FILENO, "Usage: cp file_from file_to\n");
 		exit(97);
 	}
-
 	copy_files(argv[1], argv[2]);
 	return (0);
 }
