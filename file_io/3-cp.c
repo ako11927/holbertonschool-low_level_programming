@@ -41,58 +41,11 @@ static void write_all(int fd, const char *buf, ssize_t n, const char *name)
 }
 
 /**
- * read_first - do the initial read; exit 98 on failure
- * @src: source file name
- * @buf: buffer to fill
- * @fdf: open fd of source
- *
- * Return: number of bytes read (>0) or 0 on EOF
- */
-static ssize_t read_first(const char *src, char *buf, int fdf)
-{
-	ssize_t r = read(fdf, buf, BUF_SIZE);
-
-	if (r == -1)
-	{
-		dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", src);
-		close_checked(fdf);
-		exit(98);
-	}
-	return (r);
-}
-
-/**
- * copy_loop - write first chunk then continue reading and writing
- * @src: source name
- * @dst: destination name
- * @fdf: source fd
- * @fdt: destination fd
- * @buf: buffer
- * @r: number of bytes already read into buf
- */
-static void copy_loop(const char *src, const char *dst,
-		      int fdf, int fdt, char *buf, ssize_t r)
-{
-	while (r > 0)
-	{
-		write_all(fdt, buf, r, dst);
-
-		r = read(fdf, buf, BUF_SIZE);
-		if (r == -1)
-		{
-			dprintf(STDERR_FILENO, "Error: Can't read from file %s\n",
-				src);
-			close_checked(fdf);
-			close_checked(fdt);
-			exit(98);
-		}
-	}
-}
-
-/**
  * copy_files - copy src to dst using 1,024-byte chunks
  * @src: source path
  * @dst: destination path
+ *
+ * Note: does an initial read before opening dst so read errors map to 98.
  */
 static void copy_files(const char *src, const char *dst)
 {
@@ -107,8 +60,14 @@ static void copy_files(const char *src, const char *dst)
 		exit(98);
 	}
 
-	/* initial read BEFORE opening dst so read error → exit 98 */
-	r = read_first(src, buf, fdf);
+	/* initial read BEFORE opening dst so read error -> exit 98 */
+	r = read(fdf, buf, BUF_SIZE);
+	if (r == -1)
+	{
+		dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", src);
+		close_checked(fdf);
+		exit(98);
+	}
 
 	fdt = open(dst, O_CREAT | O_WRONLY | O_TRUNC, 0664);
 	if (fdt == -1)
@@ -118,7 +77,20 @@ static void copy_files(const char *src, const char *dst)
 		exit(99);
 	}
 
-	copy_loop(src, dst, fdf, fdt, buf, r);
+	while (r > 0)
+	{
+		write_all(fdt, buf, r, dst);
+
+		r = read(fdf, buf, BUF_SIZE);
+		if (r == -1)
+		{
+			dprintf(STDERR_FILENO, "Error: Can't read from file %s\n",
+				src);
+			close_checked(fdf);
+			close_checked(fdt);
+			exit(98);
+		}
+	}
 
 	close_checked(fdf);
 	close_checked(fdt);
@@ -129,7 +101,7 @@ static void copy_files(const char *src, const char *dst)
  * @argc: argument count
  * @argv: argument vector
  *
- * Return: 0 on success (errors exit with 97–100 as specified)
+ * Return: 0 on success (errors exit with 97-100 as specified)
  */
 int main(int argc, char **argv)
 {
