@@ -85,4 +85,12 @@ ssize_t read_textfile(const char *filename, size_t letters)
 
 	fd = open(filename, O_RDONLY);
 	if (fd == -1)
-		return
+		return (0);
+
+	printed = _read_and_print(fd, letters);
+
+	if (close(fd) == -1)
+		return (0);
+
+	return (printed);
+}
