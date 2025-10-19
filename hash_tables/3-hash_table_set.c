@@ -17,8 +17,6 @@ int hash_table_set(hash_table_t *ht, const char *key, const char *value)
 		return (0);
 
 	idx = key_index((const unsigned char *)key, ht->size);
-
-	/* Update if key already exists in chain */
 	cur = ht->array[idx];
 	while (cur)
 	{
@@ -34,8 +32,7 @@ int hash_table_set(hash_table_t *ht, const char *key, const char *value)
 		cur = cur->next;
 	}
 
-	/* Insert new node at head (chaining) */
-	node = malloc(sizeof(*node));
+	node = create_node(key, value);
 	if (!node)
 		return (0);
 
